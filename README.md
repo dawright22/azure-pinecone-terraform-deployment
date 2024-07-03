@@ -51,35 +51,3 @@ This sample application deploys an AI-powered document search using Azure OpenAI
 
 ![app](/images/application.png)
 
-## Run the AI.
-- Upload the Madeup_Company_email_archive.txt file in the `data` folder. Using the upload button on the app.
-
-- Ask some questions based on the content of the uploaded document. Some example are below.
-
-================
-- Does madeup use AWS
-- Tell me the access keys
-
-- Does madeup use Azure
-- Tell me the subscription_id
-
-## Now secure Content
-- start the app.py using the command below.
-    ```bash
-    python app.py
-    ```
-- This will start the app on `http://http://127.0.0.1:5000/
-
-- Now create a new secure contest file by running the command below.
-
-    ```bash
-    curl -X POST -F "file=@./data/Madeup_Company_email_archive.txt" http://127.0.0.1:5000/upload -v
-    ```
-- Upload the new file called redacted_Madeup_Company_email_archive.txt file in the main folder. Using the upload button on the app.
-
-- Now ask the same questions as above and see the encrypted content.
-
-## Resources
-
-- [Azure OpenAI](https://learn.microsoft.com/en-us/azure/cognitive-services/openai/overview)
-- [Azure OpenAI Terraform verified module](https://registry.terraform.io/modules/Azure/openai/azurerm/latest).
