@@ -1,0 +1,70 @@
+#!/bin/bash
+az aks get-credentials --resource-group ${resourceGroup} --name ${aksName} --overwrite-existing
+az acr build --registry ${registry} --image chatbot:latest ./../sample-application
+
+az identity federated-credential create --name chatbotfederatedidentity --identity-name chatbot --resource-group ${resourceGroup} --issuer ${oidc_url} --subject system:serviceaccount:chatbot:chatbot
+
+kubectl create namespace chatbot --dry-run=client -o yaml | kubectl apply -f -
+kubectl apply -f - <<EOF
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    azure.workload.identity/client-id: "${clientid}"
+  labels:
+    azure.workload.identity/use: "true"
+  name: chatbot
+  namespace: chatbot
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chatbot-config
+  namespace: chatbot
+data:
+  .env: |
+    OPENAI_API_TYPE=azuread
+    OPENAI_API_VERSION=2023-05-15
+    OPENAI_API_BASE=${endpoint}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: chatbot
+    azure.workload.identity/use: "true"
+  name: chatbot
+  namespace: chatbot
+spec:
+  serviceAccountName: chatbot
+  containers:
+  - image: ${registry}.azurecr.io/chatbot:latest
+    imagePullPolicy: Always
+    name: chatbot
+    ports:
+    - containerPort: 8501
+      protocol: TCP
+    volumeMounts:
+    - mountPath: /app/.env
+      name: chatbot-config
+      subPath: .env
+  volumes:
+  - name: chatbot-config
+    configMap:
+      name: chatbot-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatbot
+  namespace: chatbot
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8501
+  selector:
+    run: chatbot
+  type: LoadBalancer
+EOF
