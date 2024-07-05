@@ -72,7 +72,7 @@ This sample application deploys an AI-powered document search using Azure OpenAI
     ```bash
     python app.py
     ```
-- This will start the app on `http://http://127.0.0.1:5000/
+- This will start the app on `http://127.0.0.1:5000/
 
 - Now create a new secure contest file by running the command below.
 
