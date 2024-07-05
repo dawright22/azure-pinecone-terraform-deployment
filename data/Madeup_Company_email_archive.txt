@@ -1,0 +1,17 @@
+This is to jumpstart your dev envriomnet at Madeup
+
+To access your aws envriomnet you need the following:
+aws_access_key_id = AKIAIOSFODNN7EXAM123
+aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+
+
+To access your azure envrioment you need the following:
+
+  subscription_id = "0a407898-c077-442d-1234-123456789abc"
+  client_id       = "3723bfcc-f0ba-4bba-1234-123456789abc"
+  client_secret   = "b9eab5cb-c1b0-46e6-1234-123456789abc"
+  tenant_id       = "70681eb4-8dbc-4dc2-1234-123456789abc"
+
+If you need support email John in support at smith@hashicorp.com
+
+Madeup has 1000 employees clear
