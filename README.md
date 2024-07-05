@@ -12,6 +12,8 @@ This sample application deploys an AI-powered document search using Azure OpenAI
 
 - A Pincecone API key. You can get one by following the instructions [here](https://app.pinecone.io/?sessionType=signup).
 
+-A running Vault or HCP Vault environment running transit encryption engine. You cna follow this example [here] (https://developer.hashicorp.com/vault/tutorials/encryption-as-a-service/eaas-transit)
+
 ## Quickstart
 
 - Add your API key in the variables.tf file. Using the pinecone_api_key variable.
@@ -22,8 +24,8 @@ This sample application deploys an AI-powered document search using Azure OpenAI
 
 - Clone or fork this repository. 
    ```
-   git clone https://github.com/dawright22/azure-openai-terraform-deployment-sample.git
-   cd azure-openai-terraform-deployment-sample
+   git clone https://github.com/dawright22/azure-pinecone-terraform-deployment.git
+   cd azure-pinecone-terraform-deployment
    ```
 
 - Go to the `infra` folder and run the following command to initialize your working directory.
