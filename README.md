@@ -14,6 +14,8 @@ This sample application deploys an AI-powered document search using Azure OpenAI
 
 ## Quickstart
 
+- Add your API key in the variables.tf file. Using the pinecone_api_key variable.
+
 ### Run the Terraform
 
 - Clone or fork this repository. 
