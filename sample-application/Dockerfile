@@ -13,7 +13,7 @@ COPY requirements.txt /app
 
 RUN apt-get -y update && \
     apt-get install -y libmagic-mgc libmagic1 && apt-get clean && rm -rf /var/lib/apt/lists/* && \
-    pip install -U pip && pip install --no-cache-dir -r requirements.txt && \
+    pip install -U pip && pip install --no-cache-dir -r requirements.txt && pip install pinecone-client && \
     adduser --disabled-password --gecos '' appuser
 
 COPY chatbot.py /app

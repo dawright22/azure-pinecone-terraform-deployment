@@ -1,5 +1,5 @@
 """
-Streamlit application for chatbot using Azure OpenAI and Llama_index.
+Streamlit application for chatbot using Azure OpenAI and Pinecone.
 The application allows you to upload a document and chat with the chatbot using the document as context.
 
 In order to run the application, you need to
@@ -8,6 +8,7 @@ create a ".env" file with the following:
     OPENAI_API_VERSION = 2023-05-15
     OPENAI_API_BASE = 'https://eastus.api.cognitive.microsoft.com/' # Replace with the URL of an Azure OpenAI
     OPENAI_API_KEY = '' # Replace with the corresponding API key
+    PINECONE_API_KEY = '' # Replace with your Pinecone API key
 
 To run the application, use the following command:
 streamlit run chatbot.py
@@ -16,10 +17,11 @@ streamlit run chatbot.py
 import os
 import sys
 import logging
+import random
+import string
 from langchain.chat_models import AzureChatOpenAI
 from langchain.embeddings import AzureOpenAIEmbeddings
 from azure.identity import ManagedIdentityCredential
-
 import streamlit as st
 from llama_index.core import (
     SimpleDirectoryReader,
@@ -29,15 +31,11 @@ from llama_index.core import (
     StorageContext,
     load_index_from_storage,
     Settings
-
 )
-
 from llama_index.llms.langchain import LangChainLLM
 from llama_index.embeddings.langchain import LangchainEmbedding
-
-
 from dotenv import load_dotenv, dotenv_values
-
+from pinecone import Pinecone, ServerlessSpec, Index
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logging.getLogger("llama_index").setLevel(logging.DEBUG)
@@ -52,8 +50,8 @@ if "config" not in st.session_state:
     config = dotenv_values(".env")
     # Check if AZURE_CLIENT_ID env variable is set
     if "AZURE_CLIENT_ID" in os.environ:
-       credential = ManagedIdentityCredential(client_id=os.environ["AZURE_CLIENT_ID"])
-       config["OPENAI_API_KEY"]= credential.get_token("https://cognitiveservices.azure.com/.default").token
+        credential = ManagedIdentityCredential(client_id=os.environ["AZURE_CLIENT_ID"])
+        config["OPENAI_API_KEY"] = credential.get_token("https://cognitiveservices.azure.com/.default").token
     else:
         logging.info("AZURE_CLIENT_ID not set, using OPENAI_API_KEY from .env file")
     st.session_state.config = config
@@ -65,10 +63,27 @@ if "response" not in st.session_state:
 if "current_file" not in st.session_state:
     st.session_state.current_file = None
 
+# Initialize Pinecone
+pc = Pinecone(api_key=st.session_state.config["PINECONE_API_KEY"])
+
+# Create a random string
+random_str = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
+index_name = f"docu-index-{random_str}"
+
+# Create a Pinecone index if it doesn't exist
+if index_name not in pc.list_indexes():
+    pc.create_index(
+        name=index_name,
+        dimension=1536,  # Adjust the dimension based on your embedding model
+        metric='cosine',
+        spec=ServerlessSpec(cloud='aws', region='us-east-1')
+    )
+
+index_description = pc.describe_index(index_name)
+pinecone_index = Index(name=index_name, api_key=st.session_state.config["PINECONE_API_KEY"], host=index_description.host)
+
 def send_click():
     query_engine = index.as_query_engine()
-    # answer = query_engine.query(st.session_state.prompt)
-    # st.session_state.response = answer.get_formatted_sources()
     st.session_state.response = query_engine.query(st.session_state.prompt)
 
 st.title("Azure OpenAI Doc Chatbot")
@@ -89,15 +104,17 @@ Settings.llm = AzureChatOpenAI(
 )
 
 # Create the embedding llm
+azure_openai_embeddings = AzureOpenAIEmbeddings(
+    model="text-embedding-ada-002",
+    azure_deployment="text-embedding-ada-002",
+    openai_api_key=st.session_state.config["OPENAI_API_KEY"],
+    openai_api_base=st.session_state.config["OPENAI_API_BASE"],
+    openai_api_type=st.session_state.config["OPENAI_API_TYPE"],
+    openai_api_version=st.session_state.config["OPENAI_API_VERSION"],
+)
+
 embedding_llm = LangchainEmbedding(
-    AzureOpenAIEmbeddings(
-        model="text-embedding-ada-002",
-        azure_deployment="text-embedding-ada-002",
-        openai_api_key=st.session_state.config["OPENAI_API_KEY"],
-        openai_api_base=st.session_state.config["OPENAI_API_BASE"],
-        openai_api_type=st.session_state.config["OPENAI_API_TYPE"],
-        openai_api_version=st.session_state.config["OPENAI_API_VERSION"],
-    ),
+    azure_openai_embeddings,
     embed_batch_size=1,
 )
 
@@ -107,7 +124,6 @@ max_input_size = 4096
 num_output = 256
 max_chunk_overlap = 0.5
 prompt_helper = PromptHelper(max_input_size, num_output, max_chunk_overlap)
-
 
 # Create llama_index ServiceContext
 service_context = ServiceContext.from_defaults(
@@ -137,6 +153,10 @@ if uploaded_file and uploaded_file.name != st.session_state.current_file:
         index = GPTVectorStoreIndex.from_documents(
             documents, service_context=service_context
         )
+
+        # Store vectors in Pinecone
+        vectors = [{"id": str(i), "values": azure_openai_embeddings.embed_query(doc.get_text())} for i, doc in enumerate(documents)]
+        pinecone_index.upsert(vectors=vectors, namespace="doc-namespace")
 
         index.set_index_id("vector_index")
         index.storage_context.persist(index_file)

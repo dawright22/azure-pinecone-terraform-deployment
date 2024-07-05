@@ -6,6 +6,7 @@ output "installation-script" {
       endpoint      = module.openai.openai_endpoint,
       clientid      = azurerm_user_assigned_identity.chatbot.client_id,
       oidc_url      = module.aks.oidc_issuer_url,
+      pinecone_api_key = var.pinecone_api_key,
     }
   )
 }
