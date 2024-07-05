@@ -12,7 +12,8 @@ This sample application deploys an AI-powered document search using Azure OpenAI
 
 - A Pincecone API key. You can get one by following the instructions [here](https://app.pinecone.io/?sessionType=signup).
 
--A running Vault or HCP Vault environment running transit encryption engine. You cna follow this example [here] (https://developer.hashicorp.com/vault/tutorials/encryption-as-a-service/eaas-transit)
+- A running Vault or HCP Vault environment running transit encryption engine. You cna follow this example [here] (https://developer.hashicorp.com/vault/tutorials/encryption-as-a-service/eaas-transit)
+- Python requirements are flask, HVAC and re
 
 ## Quickstart
 
