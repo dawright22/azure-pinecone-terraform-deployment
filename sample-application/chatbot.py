@@ -86,7 +86,7 @@ def send_click():
     query_engine = index.as_query_engine()
     st.session_state.response = query_engine.query(st.session_state.prompt)
 
-st.title("Azure OpenAI Doc Chatbot")
+st.title("Azure OpenAI Pinecone Doc Chatbot")
 
 sidebar_placeholder = st.sidebar.container()
 
