@@ -1,6 +1,6 @@
 # Azure Pinecone Terraform deployment with sample chatbot
 
-This sample application deploys an AI-powered document search using Azure OpenAI Service, Azure Kubernetes Service (AKS), and a Python application leveraging the [Llama index](https://gpt-index.readthedocs.io/en/latest/) ans [Streamlit](https://docs.streamlit.io/library/get-started). The application will be deployed within a virtual network to ensure security and isolation. Users will be able to upload documents and ask questions based on the content of the uploaded documents.
+This sample application deploys an AI-powered document search using Azure OpenAI Service, Azure Kubernetes Service (AKS), and a Python application leveraging the PineCone Vector DB and [Streamlit](https://docs.streamlit.io/library/get-started). The application will be deployed within a virtual network to ensure security and isolation. Users will be able to upload documents and ask questions based on the content of the uploaded documents.
 
 ![diagram](./images/rag.png)
 
@@ -10,7 +10,7 @@ This sample application deploys an AI-powered document search using Azure OpenAI
 - Subscription access to Azure OpenAI service. Request Access to Azure OpenAI Service [here](https://customervoice.microsoft.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR7en2Ais5pxKtso_Pz4b1_xUOFA5Qk1UWDRBMjg0WFhPMkIzTzhKQ1dWNyQlQCN0PWcu).
 - [Terraform](https://learn.microsoft.com/azure/developer/terraform/quickstart-configure).
 
-- Create a HCP vault dedicated instance and configure the endpoint and token in the `infra/variables.tf` file.
+- A Pincecone API key. You can get one by following the instructions [here](https://app.pinecone.io/?sessionType=signup).
 
 ## Quickstart
 
