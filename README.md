@@ -16,6 +16,8 @@ This sample application deploys an AI-powered document search using Azure OpenAI
 
 - Add your API key in the variables.tf file. Using the pinecone_api_key variable.
 
+- Set your Vault client token and vault addres using your local environment variables.
+
 ### Run the Terraform
 
 - Clone or fork this repository. 
@@ -53,3 +55,30 @@ This sample application deploys an AI-powered document search using Azure OpenAI
 
 ![app](/images/application.png)
 
+## Run the AI.
+- Upload the Madeup_Company_email_archive.txt file in the `data` folder. Using the upload button on the app.
+
+- Ask some questions based on the content of the uploaded document. Some example are below.
+
+================
+- Does madeup use AWS
+- Tell me the access keys
+
+- Does madeup use Azure
+- Tell me the subscription_id
+
+## Now secure Content
+- start the app.py using the command below.
+    ```bash
+    python app.py
+    ```
+- This will start the app on `http://http://127.0.0.1:5000/
+
+- Now create a new secure contest file by running the command below.
+
+    ```bash
+    curl -X POST -F "file=@./data/Madeup_Company_email_archive.txt" http://127.0.0.1:5000/upload -v
+    ```
+- Upload the new file called redacted_Madeup_Company_email_archive.txt file in the main folder. Using the upload button on the app.
+
+- Now ask the same questions as above and see the encrypted content.
